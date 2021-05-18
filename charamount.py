@@ -23,9 +23,5 @@ for character in data:
         amount += len(phrase)
     data[character] = charlen
 
-for character in data:
-    data[character] = (data[character] / amount) * 100
-    print(character, data[character])
-
 plt.pie([v for v in data.values()], labels=data)
 plt.show()
