@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-import matplotlib.pyplot as pyplot
+import matplotlib.pyplot as plt
 
 with open("to_parse.txt") as file:
     text = file.read()
@@ -27,5 +27,5 @@ for character in data:
     data[character] = (data[character] / amount) * 100
     print(character, data[character])
 
-pyplot.pie([v for v in data.values()], labels=data)
-pyplot.show()
+plt.pie([v for v in data.values()], labels=data)
+plt.show()
