@@ -30,4 +30,6 @@ class Answers:
                 color=ButtonColor.SECONDARY,
                 payload={"command":"tasks.answer","args":{"task_id":task_id, "answer":i}},
             )
+            if i != len(answers) - 1:
+                result.add_row()
         return result.get_keyboard()

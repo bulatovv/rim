@@ -34,22 +34,30 @@ def random_verse():
 
 for bookname in books:
     with open(books[bookname]) as file:
-        books[bookname] = [[]]
+        books[bookname] = [[""]]
         chapter = 0
+        verse = 0
         while (line := file.readline()):
-            if line.startswith("#p#"):
+            if line.startswith("#p"):
                 continue
 
+            chapter, rest = line[1:line.index(":")], line[line.index(":"):]
             new_chapter = int(line[1:line.index(":")])
+            new_verse = int(rest[1:rest.index("#")])
 
             if chapter != new_chapter:
                 chapter = new_chapter
-                books[bookname].append([[]])
-
+                books[bookname].append([[""]])
+            
             start = line.index("#", line.index(":"))
-
             clean = remove_tags(line[start + 1:-1])
-            books[bookname][chapter].append(clean)
+
+            if verse != new_verse:
+                verse = new_verse
+                books[bookname][chapter].append(clean)
+            else:
+                books[bookname][chapter][verse] += ' ' + clean
+
 
 with open(VERSES_PATH, newline='') as csvfile:
     for row in csv.DictReader(csvfile):
