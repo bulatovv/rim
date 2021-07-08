@@ -6,6 +6,8 @@ class Menu:
 
     __main = Keyboard()
     __main.add_text_button("Новый стих", color=ButtonColor.POSITIVE, payload={"command":"tasks.new"})
+    __main.add_row()
+    __main.add_text_button("Топ участников", color=ButtonColor.PRIMARY, payload={"command":"users.top"})
 
 
     @classmethod

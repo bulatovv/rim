@@ -1,6 +1,8 @@
 from config import VK_TOKEN, GROUP_ID
 from keyboards import Menu, Answers
 from verses import get_verse, random_verse
+from db import db_init
+from models import User
 
 from vkwave.bots import SimpleLongPollBot
 from vkwave.bots.core.dispatching import filters
@@ -8,9 +10,11 @@ from vkwave.bots.core.dispatching.filters import filter_caster
 from vkwave.bots import SimpleBotEvent, BotEvent
 from vkwave.bots.storage.storages import TTLStorage
 from vkwave.bots.storage.types import Key
+from vkwave.bots.addons.easy import TaskManager
 
 import random
 import json
+from tortoise.expressions import F
 
 from typing import Callable
 
@@ -33,9 +37,17 @@ for_hello = filter_caster.cast(
     lambda event: not event.object.object.message.payload
 )
 
+async def get_fullname(peer_id: int):
+    user_data = (await bot.api_context.users.get(
+        user_ids=peer_id)
+    ).response[0]
+    return f"{user_data.first_name} {user_data.last_name}"
 
 
-@bot.message_handler(for_entry("start") | for_hello)
+@bot.message_handler(
+    filters.MessageFromConversationTypeFilter("from_pm")  
+    & (for_entry("start") | for_hello)
+)
 async def hello(event: SimpleBotEvent):
     await event.answer(
         message="Привет, я помогу тебе проверить твое знание Четвероевангелия. "
@@ -43,7 +55,11 @@ async def hello(event: SimpleBotEvent):
         keyboard=Menu.main()
     )
 
-@bot.message_handler(for_entry("tasks.new"))
+
+@bot.message_handler(
+    filters.MessageFromConversationTypeFilter("from_pm")  
+    & for_entry("tasks.new")
+)
 async def task_request(event: SimpleBotEvent):
     global task_id
     amount = 3
@@ -59,20 +75,30 @@ async def task_request(event: SimpleBotEvent):
     )
     task_id += 1
 
-@bot.message_handler(for_entry("tasks.answer"))
+
+@bot.message_handler(
+    filters.MessageFromConversationTypeFilter("from_pm")  
+    & for_entry("tasks.answer")
+)
 async def task_answer(event: SimpleBotEvent):
     payload = event.payload
     args = payload.get("args")
     task_id = args.get("task_id")
     value = await storage.get(task_id, -1)
 
+    user = await User.filter(id=event.peer_id).first()
+    if not user:
+        user = await User.create(id=event.peer_id, fullname=await get_fullname(event.peer_id))
     
     if value == args.get("answer"):
+        user.score = F("score") + 1
+
         await event.answer(
             message="Верный ответ!"        
         ) 
         await storage.delete(task_id)
     elif value != -1:
+        user.score = F("score") - 1
         await event.answer(
             message="Неверный ответ!"        
         )
@@ -81,5 +107,22 @@ async def task_answer(event: SimpleBotEvent):
         await event.answer(
             message="Ты уже ответил на этот вопрос или потратил на него слишком много времени!"
         )
+    await user.save()
 
-bot.run_forever()
+@bot.message_handler(
+    filters.MessageFromConversationTypeFilter("from_pm")  
+    & for_entry("users.top")
+)
+async def top_users(event: SimpleBotEvent):
+    users = await User.all().order_by("-score").limit(15)
+    message = "Топ участников по очкам:"
+    for i, user in enumerate(users, start=1):
+        message += f"\n{i}. {user.fullname}: {user.score}💡"
+    await event.answer(
+        message=message
+    )
+
+task_manager = TaskManager()
+task_manager.add_task(db_init)
+task_manager.add_task(bot.run)
+task_manager.run()
