@@ -47,17 +47,17 @@ for conn in data:
 
 weak = [e for e in data if data[e] == 1]
 medium = [e for e in data if data[e] == 2]
-strong = [e for e in data if data[e] == 3]
+strong = [e for e in data if data[e] >= 3]
 
 pos = nx.shell_layout(G)
 nx.draw_networkx_nodes(G, pos, node_size=0)
-nx.draw_networkx_edges(G, pos, edgelist=weak, width=2, edge_color="#ccc")
-nx.draw_networkx_edges(G, pos, edgelist=medium, width=2, edge_color="#888")
-nx.draw_networkx_edges(G, pos, edgelist=strong, width=2, edge_color="#444")
-nx.draw_networkx_labels(G, pos, font_size=14, font_family="sans-serif")
+nx.draw_networkx_edges(G, pos, edgelist=weak, width=2, edge_color="#A68E8E")
+nx.draw_networkx_edges(G, pos, edgelist=medium, width=2, edge_color="#806161")
+nx.draw_networkx_edges(G, pos, edgelist=strong, width=2, edge_color="#5f4242")
+nx.draw_networkx_labels(G, pos, font_size=5, font_family="sans-serif")
 
 figure = plt.gcf()
-figure.set_size_inches(15, 15)
+figure.set_size_inches(14, 14)
 plt.axis("off")
-plt.savefig("test.png", transparent=True, dpi = 80, bbox_inches = 'tight')
+plt.savefig("unnamed.png", transparent=True, dpi = 80, bbox_inches = 'tight')
 plt.show()
