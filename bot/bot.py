@@ -1,7 +1,6 @@
 from config import VK_TOKEN, GROUP_ID
 from keyboards import Menu, Answers
 from verses import get_verse, random_verse
-from db import db_init
 from models import User
 
 from vkwave.bots import SimpleLongPollBot
@@ -11,7 +10,6 @@ from vkwave.bots.core.dispatching.filters import filter_caster
 from vkwave.bots import SimpleBotEvent, BotEvent
 from vkwave.bots.storage.storages import TTLStorage
 from vkwave.bots.storage.types import Key
-from vkwave.bots.addons.easy import TaskManager
 
 import random
 import json
