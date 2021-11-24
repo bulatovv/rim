@@ -3,22 +3,23 @@ import random
 import csv
 
 books = {
-    "Мф" : "52-matthew.dat",
-    "Мк" : "53-mark.dat",
-    "Лк" : "54-luke.dat",
-    "Ин" : "55-john.dat"
+    "Мф": "52-matthew.dat",
+    "Мк": "53-mark.dat",
+    "Лк": "54-luke.dat",
+    "Ин": "55-john.dat"
 }
 
 VERSES_PATH = "../full_timecodes.csv"
 verses = []
 
+
 def remove_tags(text):
     return BeautifulSoup(text, "html.parser").text
+
 
 def get_verse(verse: str):
     bookname, rest = verse.split()
     colon = rest.find(":")
-    
     chapter, rest = int(rest[:colon]), rest[colon + 1:]
 
     if rest.find("-") != -1:
@@ -29,8 +30,10 @@ def get_verse(verse: str):
 
     return " ".join(books[bookname][chapter][verse_num])
 
+
 def random_verse():
     return random.choice(verses)
+
 
 for bookname in books:
     with open(books[bookname]) as file:
@@ -48,7 +51,7 @@ for bookname in books:
             if chapter != new_chapter:
                 chapter = new_chapter
                 books[bookname].append([[""]])
-            
+
             start = line.index("#", line.index(":"))
             clean = remove_tags(line[start + 1:-1])
 
