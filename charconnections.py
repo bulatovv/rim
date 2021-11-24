@@ -22,13 +22,13 @@ characters = {
         "Варавва", "Иуда", "Понтий Пилат", "Мария", "Иосиф",
         "Каиафа", "Луций", "Ирод Антипа", "Ирод", "Магдалина"
 }
+
 for gap in gaps:
     timeline.append((gap.start(1), "GAP"))
 for phrase in phrases:
     if phrase[1] in characters:
         timeline.append((phrase.start(1), phrase[1]))
-timeline.sort(key = lambda m: m[0])
-#print(*timeline, sep='\n')
+timeline.sort(key=lambda m: m[0])
 
 data = Counter()
 group = set()
@@ -38,12 +38,11 @@ for pos, label in timeline:
         group = set()
     else:
         group.add(label)
-print(data)
 
 G = nx.Graph()
 
 for conn in data:
-    G.add_edge(*conn, weight = data[conn])
+    G.add_edge(*conn, weight=data[conn])
 
 weak = [e for e in data if data[e] == 1]
 medium = [e for e in data if data[e] == 2]
@@ -59,5 +58,5 @@ nx.draw_networkx_labels(G, pos, font_size=5, font_family="sans-serif")
 figure = plt.gcf()
 figure.set_size_inches(14, 14)
 plt.axis("off")
-plt.savefig("unnamed.png", transparent=True, dpi = 80, bbox_inches = 'tight')
+plt.savefig("unnamed.png", transparent=True, dpi=80, bbox_inches='tight')
 plt.show()
